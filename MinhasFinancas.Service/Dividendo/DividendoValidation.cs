@@ -11,7 +11,6 @@ namespace MinhasFinancas.Service.Dividendo
                 .GreaterThan(0).WithMessage("O campo {PropertyName} precisa ser maior que {ComparisonValue}");
 
             RuleFor(d => d.Quantidade)
-                .NotEmpty().WithMessage("O campo {PropertyName} não pode estar vazio")
                 .GreaterThanOrEqualTo(0).WithMessage("O campo {PropertyName} precisa ser maior que {ComparisonValue}");
 
             RuleFor(d => d.Data)

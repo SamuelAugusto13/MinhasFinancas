@@ -23,7 +23,6 @@ namespace MinhasFinancas.Service.Papel
                 .NotEmpty().WithMessage("O campo {PropertyName} não pode estar vazio");
 
             RuleFor(p => p.CotacaoAtual)
-                .NotEmpty().WithMessage("O campo {PropertyName} não pode estar vazio")
                 .GreaterThanOrEqualTo(0).WithMessage("O campo {PropertyName} precisa ser maior que {ComparisonValue}");
 
             RuleFor(d => d.Ativo)
