@@ -150,7 +150,11 @@
     <Compile Include="App_Start\DependencyInjectionConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\DividendoController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\PapelController.cs" />
+    <Compile Include="Controllers\SegmentoController.cs" />
+    <Compile Include="Controllers\TransacaoController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -196,9 +200,30 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Papel\Create.cshtml" />
+    <Content Include="Views\Papel\Delete.cshtml" />
+    <Content Include="Views\Papel\Details.cshtml" />
+    <Content Include="Views\Papel\Edit.cshtml" />
+    <Content Include="Views\Papel\Index.cshtml" />
+    <Content Include="Views\Dividendo\Create.cshtml" />
+    <Content Include="Views\Dividendo\Delete.cshtml" />
+    <Content Include="Views\Dividendo\Details.cshtml" />
+    <Content Include="Views\Dividendo\Edit.cshtml" />
+    <Content Include="Views\Dividendo\Index.cshtml" />
+    <Content Include="Views\Segmento\Create.cshtml" />
+    <Content Include="Views\Segmento\Delete.cshtml" />
+    <Content Include="Views\Segmento\Details.cshtml" />
+    <Content Include="Views\Segmento\Edit.cshtml" />
+    <Content Include="Views\Segmento\Index.cshtml" />
+    <Content Include="Views\Transacao\Create.cshtml" />
+    <Content Include="Views\Transacao\Delete.cshtml" />
+    <Content Include="Views\Transacao\Details.cshtml" />
+    <Content Include="Views\Transacao\Edit.cshtml" />
+    <Content Include="Views\Transacao\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Data\" />
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>

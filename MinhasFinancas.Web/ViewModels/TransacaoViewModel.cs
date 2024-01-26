@@ -50,6 +50,6 @@ namespace MinhasFinancas.Web.ViewModels
         /// <summary>
         /// Propiedades fora classe
         /// </summary>
-        public virtual IEnumerable<PapelViewModel> Papeis { get; set; }
+        //public virtual IEnumerable<PapelViewModel> Papeis { get; set; }
     }
 }
