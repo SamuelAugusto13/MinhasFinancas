@@ -25,7 +25,7 @@ namespace MinhasFinancas.Infra.Mappings
                 .IsRequired();
 
             HasRequired(t => t.Papel)
-                .WithMany(p => p.Transacoes)
+                .WithMany(p => p.Transacao)
                 .HasForeignKey(t => t.PapelId);
 
             ToTable("TbTransacao");

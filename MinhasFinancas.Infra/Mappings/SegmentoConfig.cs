@@ -18,7 +18,7 @@ namespace MinhasFinancas.Infra.Mappings
             Property(s => s.Ativo)
                 .IsRequired();
 
-            HasMany(s => s.Papeis).WithMany(p => p.Segmentos);
+            HasMany(s => s.Papel).WithMany(p => p.Segmento);
 
             ToTable("TbSegmento");
         }

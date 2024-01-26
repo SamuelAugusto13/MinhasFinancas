@@ -13,8 +13,8 @@ namespace MinhasFinancas.Infra.Models
         public bool Ativo { get; set; }
 
         /* Relações EF */
-        public virtual ICollection<Transacao> Transacoes { get; set; }
-        public virtual ICollection<Dividendo> Dividendos { get; set; }
-        public virtual ICollection<Segmento> Segmentos { get; set; }
+        public virtual ICollection<Transacao> Transacao { get; set; }
+        public virtual ICollection<Dividendo> Dividendo { get; set; }
+        public virtual ICollection<Segmento> Segmento { get; set; }
     }
 }

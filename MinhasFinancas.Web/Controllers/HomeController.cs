@@ -21,34 +21,6 @@ namespace MinhasFinancas.Web.Controllers
 
         public async Task<ActionResult> Index()
         {
-            //List<PapelViewModel> papelList = _mapper.Map<List<PapelViewModel>>(await _papelService.Get());
-
-            Papel obj = new Papel()
-            {
-                Id = Guid.NewGuid(),
-                Codigo = "BBAS3",
-                Nome = "BB",
-                CotacaoAtual = 0,
-                Ativo = true
-            };
-
-            PapelViewModel obj2 = new PapelViewModel()
-            {
-                Id = Guid.NewGuid(),
-                Codigo = "BBAS3",
-                Nome = "BB",
-                CotacaoAtual = 0,
-                Ativo = true
-            };
-
-            PapelViewModel papel = _mapper.Map<PapelViewModel>(obj);
-            Papel papel2 = _mapper.Map<Papel>(obj2);
-
-            //IPapelService papelService = new PapelService();
-            //papelService.Add(obj);
-
-
-
             return View();
         }
 
