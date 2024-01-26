@@ -30,6 +30,6 @@ O projeto utiliza o banco de dados local do Visual Studio. Certifique-se de que 
 2. Configure a conexão com o banco de dados local.
 3. Execute o projeto.
 
-## Contribuição
-@SandroMarques01
+## Colaboração
+<sup>@SandroMarques01</sup>
 ---
