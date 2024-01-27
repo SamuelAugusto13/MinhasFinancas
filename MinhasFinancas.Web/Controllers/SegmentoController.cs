@@ -1,8 +1,10 @@
-﻿using MinhasFinancas.Web.Data;
+﻿using AutoMapper;
+using MinhasFinancas.Infra.Models;
+using MinhasFinancas.Service.Papel;
+using MinhasFinancas.Service.Segmento;
 using MinhasFinancas.Web.ViewModels;
 using System;
-using System.Data.Entity;
-using System.Net;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
@@ -10,26 +12,34 @@ namespace MinhasFinancas.Web.Controllers
 {
     public class SegmentoController : Controller
     {
-        private MinhasFinancasWebContext db = new MinhasFinancasWebContext();
+        ISegmentoService _segmentoService;
+        IPapelService _papelService;
+        IMapper _mapper;
+
+        public SegmentoController(ISegmentoService segmentoService,
+                                  IPapelService papelService,
+                                  IMapper mapper)
+        {
+            _segmentoService = segmentoService;
+            _papelService = papelService;
+            _mapper = mapper;
+        }
 
         // GET: Segmento
         public async Task<ActionResult> Index()
         {
-            return View(await db.SegmentoViewModels.ToListAsync());
+            return View(_mapper.Map<List<SegmentoViewModel>>(await _segmentoService.Get()));
         }
 
         // GET: Segmento/Details/5
-        public async Task<ActionResult> Details(Guid? id)
+        public async Task<ActionResult> Details(Guid id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            SegmentoViewModel segmentoViewModel = await db.SegmentoViewModels.FindAsync(id);
+            SegmentoViewModel segmentoViewModel = _mapper.Map<SegmentoViewModel>(await _segmentoService.GetById(id));
             if (segmentoViewModel == null)
             {
                 return HttpNotFound();
             }
+
             return View(segmentoViewModel);
         }
 
@@ -44,31 +54,27 @@ namespace MinhasFinancas.Web.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "Id,Nome,Descricao,Ativo")] SegmentoViewModel segmentoViewModel)
+        public async Task<ActionResult> Create(SegmentoViewModel segmentoViewModel)
         {
-            if (ModelState.IsValid)
-            {
-                segmentoViewModel.Id = Guid.NewGuid();
-                db.SegmentoViewModels.Add(segmentoViewModel);
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
+            if (!ModelState.IsValid) return View(segmentoViewModel);
 
-            return View(segmentoViewModel);
+            Segmento obj = _mapper.Map<Segmento>(segmentoViewModel);
+            await _segmentoService.Add(obj);
+
+            //if (!OperacaoValida()) return View(segmentoViewModel);
+
+            return RedirectToAction("Index");
         }
 
         // GET: Segmento/Edit/5
-        public async Task<ActionResult> Edit(Guid? id)
+        public async Task<ActionResult> Edit(Guid id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            SegmentoViewModel segmentoViewModel = await db.SegmentoViewModels.FindAsync(id);
+            SegmentoViewModel segmentoViewModel = _mapper.Map<SegmentoViewModel>(await _segmentoService.GetById(id));
             if (segmentoViewModel == null)
             {
                 return HttpNotFound();
             }
+
             return View(segmentoViewModel);
         }
 
@@ -77,29 +83,30 @@ namespace MinhasFinancas.Web.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "Id,Nome,Descricao,Ativo")] SegmentoViewModel segmentoViewModel)
+        public async Task<ActionResult> Edit(Guid id, SegmentoViewModel segmentoViewModel)
         {
-            if (ModelState.IsValid)
-            {
-                db.Entry(segmentoViewModel).State = EntityState.Modified;
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
+            if (id != segmentoViewModel.Id) return HttpNotFound();
+
+            if (!ModelState.IsValid) return View(segmentoViewModel);
+
+            Segmento segmento = _mapper.Map<Segmento>(segmentoViewModel);
+            await _segmentoService.Update(segmento);
+
+            //if (!OperacaoValida()) return View(await ObterFornecedorProdutosEndereco(id));
+
             return View(segmentoViewModel);
         }
 
         // GET: Segmento/Delete/5
-        public async Task<ActionResult> Delete(Guid? id)
+
+        public async Task<ActionResult> Delete(Guid id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            SegmentoViewModel segmentoViewModel = await db.SegmentoViewModels.FindAsync(id);
+            SegmentoViewModel segmentoViewModel = _mapper.Map<SegmentoViewModel>(await _segmentoService.GetById(id));
             if (segmentoViewModel == null)
             {
                 return HttpNotFound();
             }
+
             return View(segmentoViewModel);
         }
 
@@ -108,9 +115,14 @@ namespace MinhasFinancas.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(Guid id)
         {
-            SegmentoViewModel segmentoViewModel = await db.SegmentoViewModels.FindAsync(id);
-            db.SegmentoViewModels.Remove(segmentoViewModel);
-            await db.SaveChangesAsync();
+            SegmentoViewModel segmentoViewModel = _mapper.Map<SegmentoViewModel>(await _segmentoService.GetById(id));
+
+            if (segmentoViewModel == null) return HttpNotFound();
+
+            await _segmentoService.DeleteById(id);
+
+            //if (!OperacaoValida()) return View(fornecedor);
+
             return RedirectToAction("Index");
         }
 
@@ -118,7 +130,7 @@ namespace MinhasFinancas.Web.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _segmentoService.Dispose();
             }
             base.Dispose(disposing);
         }

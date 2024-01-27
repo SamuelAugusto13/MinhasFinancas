@@ -39,12 +39,12 @@ namespace MinhasFinancas.Web.ViewModels
         public bool Ativo { get; set; }
 
         /* Relações EF */
-        //public virtual PapelViewModel Papel { get; set; }
+        public virtual PapelViewModel Papel { get; set; }
 
         /// <summary>
         /// Propiedades fora classe
         /// </summary>
-        //public virtual IEnumerable<PapelViewModel> Papeis { get; set; }
+        public virtual IEnumerable<PapelViewModel> Papeis { get; set; }
 
 
     }

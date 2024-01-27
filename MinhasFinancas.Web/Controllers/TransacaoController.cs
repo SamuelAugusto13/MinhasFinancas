@@ -1,8 +1,10 @@
-﻿using MinhasFinancas.Web.Data;
+﻿using AutoMapper;
+using MinhasFinancas.Infra.Models;
+using MinhasFinancas.Service.Papel;
+using MinhasFinancas.Service.Transacao;
 using MinhasFinancas.Web.ViewModels;
 using System;
-using System.Data.Entity;
-using System.Net;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
@@ -10,33 +12,41 @@ namespace MinhasFinancas.Web.Controllers
 {
     public class TransacaoController : Controller
     {
-        private MinhasFinancasWebContext db = new MinhasFinancasWebContext();
+        ITransacaoService _transacaoService;
+        IPapelService _papelService;
+        IMapper _mapper;
+
+        public TransacaoController(ITransacaoService transacaoService, IPapelService papelService, IMapper mapper)
+        {
+            _transacaoService = transacaoService;
+            _papelService = papelService;
+            _mapper = mapper;
+        }
 
         // GET: Transacao
         public async Task<ActionResult> Index()
         {
-            return View(await db.TransacaoViewModels.ToListAsync());
+            return View(_mapper.Map<List<TransacaoViewModel>>(await _transacaoService.Get()));
         }
 
         // GET: Transacao/Details/5
-        public async Task<ActionResult> Details(Guid? id)
+        public async Task<ActionResult> Details(Guid id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            TransacaoViewModel transacaoViewModel = await db.TransacaoViewModels.FindAsync(id);
+            TransacaoViewModel transacaoViewModel = _mapper.Map<TransacaoViewModel>(await _transacaoService.GetById(id));
             if (transacaoViewModel == null)
             {
                 return HttpNotFound();
             }
+
             return View(transacaoViewModel);
         }
 
         // GET: Transacao/Create
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
-            return View();
+            var transacaoViewModel = await PopularPapeis(new TransacaoViewModel());
+
+            return View(transacaoViewModel);
         }
 
         // POST: Transacao/Create
@@ -44,31 +54,29 @@ namespace MinhasFinancas.Web.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "Id,PapelId,ValorUnt,Quantidade,Data,TipoTransacao,Descricao,Ativo")] TransacaoViewModel transacaoViewModel)
+        public async Task<ActionResult> Create(TransacaoViewModel transacaoViewModel)
         {
-            if (ModelState.IsValid)
-            {
-                transacaoViewModel.Id = Guid.NewGuid();
-                db.TransacaoViewModels.Add(transacaoViewModel);
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
+            if (!ModelState.IsValid) return View(transacaoViewModel);
 
-            return View(transacaoViewModel);
+            Transacao obj = _mapper.Map<Transacao>(transacaoViewModel);
+            await _transacaoService.Add(obj);
+
+            //if (!OperacaoValida()) return View(transacaoViewModel);
+
+            return RedirectToAction("Index");
         }
 
         // GET: Transacao/Edit/5
-        public async Task<ActionResult> Edit(Guid? id)
+        public async Task<ActionResult> Edit(Guid id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            TransacaoViewModel transacaoViewModel = await db.TransacaoViewModels.FindAsync(id);
+            TransacaoViewModel transacaoViewModel = _mapper.Map<TransacaoViewModel>(await _transacaoService.GetById(id));
             if (transacaoViewModel == null)
             {
                 return HttpNotFound();
             }
+
+            transacaoViewModel = await PopularPapeis(new TransacaoViewModel());
+
             return View(transacaoViewModel);
         }
 
@@ -77,29 +85,29 @@ namespace MinhasFinancas.Web.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "Id,PapelId,ValorUnt,Quantidade,Data,TipoTransacao,Descricao,Ativo")] TransacaoViewModel transacaoViewModel)
+        public async Task<ActionResult> Edit(Guid id, TransacaoViewModel transacaoViewModel)
         {
-            if (ModelState.IsValid)
-            {
-                db.Entry(transacaoViewModel).State = EntityState.Modified;
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
-            return View(transacaoViewModel);
+            if (id != transacaoViewModel.Id) return HttpNotFound();
+
+            if (!ModelState.IsValid) return View(transacaoViewModel);
+
+            Transacao transacao = _mapper.Map<Transacao>(transacaoViewModel);
+            await _transacaoService.Update(transacao);
+
+            //if (!OperacaoValida()) return View(await ObterFornecedorProdutosEndereco(id));
+
+            return RedirectToAction("Index");
         }
 
         // GET: Transacao/Delete/5
-        public async Task<ActionResult> Delete(Guid? id)
+        public async Task<ActionResult> Delete(Guid id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            TransacaoViewModel transacaoViewModel = await db.TransacaoViewModels.FindAsync(id);
+            TransacaoViewModel transacaoViewModel = _mapper.Map<TransacaoViewModel>(await _transacaoService.GetById(id));
             if (transacaoViewModel == null)
             {
                 return HttpNotFound();
             }
+
             return View(transacaoViewModel);
         }
 
@@ -108,17 +116,30 @@ namespace MinhasFinancas.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(Guid id)
         {
-            TransacaoViewModel transacaoViewModel = await db.TransacaoViewModels.FindAsync(id);
-            db.TransacaoViewModels.Remove(transacaoViewModel);
-            await db.SaveChangesAsync();
+            TransacaoViewModel transacaoViewModel = _mapper.Map<TransacaoViewModel>(await _transacaoService.GetById(id));
+
+            if (transacaoViewModel == null) return HttpNotFound();
+
+            await _transacaoService.DeleteById(id);
+
+            //if (!OperacaoValida()) return View(fornecedor);
+
             return RedirectToAction("Index");
+        }
+
+
+        private async Task<TransacaoViewModel> PopularPapeis(TransacaoViewModel transacao)
+        {
+            transacao.Papeis = _mapper.Map<List<PapelViewModel>>(await _papelService.Get());
+            return transacao;
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                db.Dispose();
+                _transacaoService.Dispose();
+                _papelService.Dispose();
             }
             base.Dispose(disposing);
         }

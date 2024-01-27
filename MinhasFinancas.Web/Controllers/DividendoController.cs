@@ -1,6 +1,10 @@
-﻿using MinhasFinancas.Web.Data;
+﻿using AutoMapper;
+using MinhasFinancas.Infra.Models;
+using MinhasFinancas.Service.Dividendo;
+using MinhasFinancas.Service.Papel;
 using MinhasFinancas.Web.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Net;
 using System.Threading.Tasks;
@@ -10,22 +14,33 @@ namespace MinhasFinancas.Web.Controllers
 {
     public class DividendoController : Controller
     {
-        private MinhasFinancasWebContext db = new MinhasFinancasWebContext();
+        IDividendoService _dividendoService;
+        IPapelService _papelService;
+        IMapper _mapper;
+
+        public DividendoController(IDividendoService dividendoService, 
+                                   IPapelService papelService,
+                                   IMapper mapper)
+        {
+            _dividendoService = dividendoService;
+            _papelService = papelService;
+            _mapper = mapper;
+        }
+
 
         // GET: Dividendo
+        [HttpGet]
         public async Task<ActionResult> Index()
         {
-            return View(await db.DividendoViewModels.ToListAsync());
+            return View(_mapper.Map<List<DividendoViewModel>>(await _dividendoService.Get()));
         }
 
         // GET: Dividendo/Details/5
-        public async Task<ActionResult> Details(Guid? id)
+        [HttpGet]
+        public async Task<ActionResult> Details(Guid id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            DividendoViewModel dividendoViewModel = await db.DividendoViewModels.FindAsync(id);
+            DividendoViewModel dividendoViewModel = _mapper.Map<DividendoViewModel> (await _dividendoService.GetById(id));
+
             if (dividendoViewModel == null)
             {
                 return HttpNotFound();
@@ -34,9 +49,12 @@ namespace MinhasFinancas.Web.Controllers
         }
 
         // GET: Dividendo/Create
-        public ActionResult Create()
+        [HttpGet]
+        public async Task<ActionResult> Create()
         {
-            return View();
+            var dividendoViewModel = await PopularPapeis(new DividendoViewModel());
+
+            return View(dividendoViewModel);
         }
 
         // POST: Dividendo/Create
@@ -44,31 +62,29 @@ namespace MinhasFinancas.Web.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "Id,PapelId,ValorRecebido,Quantidade,Data,Descricao,Ativo")] DividendoViewModel dividendoViewModel)
+        public async Task<ActionResult> Create(DividendoViewModel dividendoViewModel)
         {
-            if (ModelState.IsValid)
-            {
-                dividendoViewModel.Id = Guid.NewGuid();
-                db.DividendoViewModels.Add(dividendoViewModel);
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
+            if (!ModelState.IsValid) return View(dividendoViewModel);
 
-            return View(dividendoViewModel);
+            Dividendo obj = _mapper.Map<Dividendo>(dividendoViewModel);
+            await _dividendoService.Add(obj);
+
+            //if (!OperacaoValida()) return View(DividendoViewModel);
+
+            return RedirectToAction("Index");
         }
 
         // GET: Dividendo/Edit/5
-        public async Task<ActionResult> Edit(Guid? id)
+        public async Task<ActionResult> Edit(Guid id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            DividendoViewModel dividendoViewModel = await db.DividendoViewModels.FindAsync(id);
+            DividendoViewModel dividendoViewModel = _mapper.Map<DividendoViewModel>(await _dividendoService.GetById(id));
+
             if (dividendoViewModel == null)
             {
                 return HttpNotFound();
             }
+            dividendoViewModel = await PopularPapeis(new DividendoViewModel());
+
             return View(dividendoViewModel);
         }
 
@@ -77,25 +93,26 @@ namespace MinhasFinancas.Web.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "Id,PapelId,ValorRecebido,Quantidade,Data,Descricao,Ativo")] DividendoViewModel dividendoViewModel)
+        public async Task<ActionResult> Edit(Guid id, DividendoViewModel dividendoViewModel)
         {
-            if (ModelState.IsValid)
-            {
-                db.Entry(dividendoViewModel).State = EntityState.Modified;
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
-            return View(dividendoViewModel);
+            if (id != dividendoViewModel.Id) return HttpNotFound();
+
+            if (!ModelState.IsValid) return View(dividendoViewModel);
+
+            Dividendo dividendo = _mapper.Map<Dividendo>(dividendoViewModel);
+
+            await _dividendoService.Update(dividendo);
+
+            //if (!OperacaoValida()) return View(await ObterFornecedorProdutosEndereco(id));
+
+            return RedirectToAction("Index");
         }
 
         // GET: Dividendo/Delete/5
-        public async Task<ActionResult> Delete(Guid? id)
+        public async Task<ActionResult> Delete(Guid id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            DividendoViewModel dividendoViewModel = await db.DividendoViewModels.FindAsync(id);
+            DividendoViewModel dividendoViewModel = _mapper.Map<DividendoViewModel>(await _dividendoService.GetById(id));
+
             if (dividendoViewModel == null)
             {
                 return HttpNotFound();
@@ -108,17 +125,30 @@ namespace MinhasFinancas.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(Guid id)
         {
-            DividendoViewModel dividendoViewModel = await db.DividendoViewModels.FindAsync(id);
-            db.DividendoViewModels.Remove(dividendoViewModel);
-            await db.SaveChangesAsync();
+            DividendoViewModel dividendoViewModel = _mapper.Map<DividendoViewModel>(await _dividendoService.GetById(id));
+
+            if (dividendoViewModel == null)
+            {
+                return HttpNotFound();
+            }
+
+            await _dividendoService.DeleteById(id);
+
             return RedirectToAction("Index");
+        }
+
+        private async Task<DividendoViewModel> PopularPapeis(DividendoViewModel dividendo)
+        {
+            dividendo.Papeis = _mapper.Map<List<PapelViewModel>>(await _papelService.Get());
+            return dividendo;
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                db.Dispose();
+                _dividendoService.Dispose();
+                _papelService.Dispose();
             }
             base.Dispose(disposing);
         }

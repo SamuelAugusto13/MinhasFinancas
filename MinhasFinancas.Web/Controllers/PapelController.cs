@@ -1,8 +1,9 @@
-﻿using MinhasFinancas.Web.Data;
+﻿using AutoMapper;
+using MinhasFinancas.Infra.Models;
+using MinhasFinancas.Service.Papel;
 using MinhasFinancas.Web.ViewModels;
 using System;
-using System.Data.Entity;
-using System.Net;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
@@ -10,22 +11,26 @@ namespace MinhasFinancas.Web.Controllers
 {
     public class PapelController : Controller
     {
-        private MinhasFinancasWebContext db = new MinhasFinancasWebContext();
+        IPapelService _papelService;
+        IMapper _mapper;
+
+        public PapelController(IPapelService papelService,
+                               IMapper mapper)
+        {
+            _papelService = papelService;
+            _mapper = mapper;
+        }
 
         // GET: Papel
         public async Task<ActionResult> Index()
         {
-            return View(await db.PapelViewModels.ToListAsync());
+            return View(_mapper.Map<List<PapelViewModel>>(await _papelService.Get()));
         }
 
         // GET: Papel/Details/5
-        public async Task<ActionResult> Details(Guid? id)
+        public async Task<ActionResult> Details(Guid id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            PapelViewModel papelViewModel = await db.PapelViewModels.FindAsync(id);
+            PapelViewModel papelViewModel = _mapper.Map<PapelViewModel>(await _papelService.GetById(id));
             if (papelViewModel == null)
             {
                 return HttpNotFound();
@@ -34,7 +39,8 @@ namespace MinhasFinancas.Web.Controllers
         }
 
         // GET: Papel/Create
-        public ActionResult Create()
+        [HttpGet]
+        public async Task<ActionResult> Create()
         {
             return View();
         }
@@ -44,31 +50,27 @@ namespace MinhasFinancas.Web.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "Id,Codigo,Nome,TipoPapel,CotacaoAtual,Descricao,Ativo")] PapelViewModel papelViewModel)
+        public async Task<ActionResult> Create(PapelViewModel papelViewModel)
         {
-            if (ModelState.IsValid)
-            {
-                papelViewModel.Id = Guid.NewGuid();
-                db.PapelViewModels.Add(papelViewModel);
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
+            if (!ModelState.IsValid) return View(papelViewModel);
 
-            return View(papelViewModel);
+            Papel obj = _mapper.Map<Papel>(papelViewModel);
+            await _papelService.Add(obj);
+
+            //if (!OperacaoValida()) return View(DividendoViewModel);
+
+            return RedirectToAction("Index");
         }
 
         // GET: Papel/Edit/5
-        public async Task<ActionResult> Edit(Guid? id)
+        public async Task<ActionResult> Edit(Guid id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            PapelViewModel papelViewModel = await db.PapelViewModels.FindAsync(id);
+            PapelViewModel papelViewModel = _mapper.Map<PapelViewModel>(await _papelService.GetById(id));
             if (papelViewModel == null)
             {
                 return HttpNotFound();
             }
+
             return View(papelViewModel);
         }
 
@@ -77,29 +79,29 @@ namespace MinhasFinancas.Web.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "Id,Codigo,Nome,TipoPapel,CotacaoAtual,Descricao,Ativo")] PapelViewModel papelViewModel)
+        public async Task<ActionResult> Edit(Guid id, PapelViewModel papelViewModel)
         {
-            if (ModelState.IsValid)
-            {
-                db.Entry(papelViewModel).State = EntityState.Modified;
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
-            return View(papelViewModel);
+            if (id != papelViewModel.Id) return HttpNotFound();
+
+            if (!ModelState.IsValid) return View(papelViewModel);
+
+            Papel papel = _mapper.Map<Papel>(papelViewModel);
+            await _papelService.Update(papel);
+
+            //if (!OperacaoValida()) return View(await ObterFornecedorProdutosEndereco(id));
+
+            return RedirectToAction("Index");
         }
 
         // GET: Papel/Delete/5
-        public async Task<ActionResult> Delete(Guid? id)
+        public async Task<ActionResult> Delete(Guid id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            PapelViewModel papelViewModel = await db.PapelViewModels.FindAsync(id);
+            PapelViewModel papelViewModel = _mapper.Map<PapelViewModel>(await _papelService.GetById(id));
             if (papelViewModel == null)
             {
                 return HttpNotFound();
             }
+
             return View(papelViewModel);
         }
 
@@ -108,9 +110,14 @@ namespace MinhasFinancas.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(Guid id)
         {
-            PapelViewModel papelViewModel = await db.PapelViewModels.FindAsync(id);
-            db.PapelViewModels.Remove(papelViewModel);
-            await db.SaveChangesAsync();
+            PapelViewModel papelViewModel = _mapper.Map<PapelViewModel>(await _papelService.GetById(id));
+
+            if (papelViewModel == null) return HttpNotFound();
+
+            await _papelService.DeleteById(id);
+
+            //if (!OperacaoValida()) return View(fornecedor);
+
             return RedirectToAction("Index");
         }
 
@@ -118,7 +125,7 @@ namespace MinhasFinancas.Web.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _papelService.Dispose();
             }
             base.Dispose(disposing);
         }
