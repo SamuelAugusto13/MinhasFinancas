@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MinhasFinancas.Infra.Models;
+using MinhasFinancas.Service.Core.Notificacao;
 using MinhasFinancas.Service.Dividendo;
 using MinhasFinancas.Service.Papel;
 using MinhasFinancas.Web.ViewModels;
@@ -12,7 +13,7 @@ using System.Web.Mvc;
 
 namespace MinhasFinancas.Web.Controllers
 {
-    public class DividendoController : Controller
+    public class DividendoController : BaseController
     {
         IDividendoService _dividendoService;
         IPapelService _papelService;
@@ -20,7 +21,8 @@ namespace MinhasFinancas.Web.Controllers
 
         public DividendoController(IDividendoService dividendoService, 
                                    IPapelService papelService,
-                                   IMapper mapper)
+                                   INotificador notificador,
+                                   IMapper mapper) : base(notificador)
         {
             _dividendoService = dividendoService;
             _papelService = papelService;
