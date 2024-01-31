@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<MinhasFinancas.Web.ViewModels.TransacaoViewModel>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Transações";
 }
 
-<h2>Index</h2>
+<h2>Transações</h2>
 
 <p>
     @Html.ActionLink("Create New", "Create")
@@ -38,7 +38,7 @@
 @foreach (var item in Model) {
     <tr>
         <td>
-            @Html.DisplayFor(modelItem => item.PapelId)
+            @Html.DisplayFor(modelItem => item.Papel.Codigo)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.ValorUnt)

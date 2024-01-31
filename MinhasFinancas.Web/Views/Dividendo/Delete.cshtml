@@ -1,14 +1,14 @@
 ﻿@model MinhasFinancas.Web.ViewModels.DividendoViewModel
 
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Deletar";
 }
 
-<h2>Delete</h2>
+<h2>Deletar</h2>
 
-<h3>Are you sure you want to delete this?</h3>
+<h3>Tem certeza de que deseja excluir esse dividendo?</h3>
 <div>
-    <h4>DividendoViewModel</h4>
+    <h4>@Model.Papel.Codigo - @Model.Papel.Nome | @Model.Data</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>

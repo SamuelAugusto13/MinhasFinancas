@@ -7,6 +7,7 @@ using MinhasFinancas.Web.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -34,7 +35,7 @@ namespace MinhasFinancas.Web.Controllers
         [HttpGet]
         public async Task<ActionResult> Index()
         {
-            return View(_mapper.Map<List<DividendoViewModel>>(await _dividendoService.Get()));
+            return View(_mapper.Map<List<DividendoViewModel>>(await _dividendoService.Get(includeProperties: "Papel")).OrderByDescending(f => f.Data));
         }
 
         // GET: Dividendo/Details/5
@@ -47,6 +48,9 @@ namespace MinhasFinancas.Web.Controllers
             {
                 return HttpNotFound();
             }
+
+            dividendoViewModel.Papel = _mapper.Map<PapelViewModel>(await _papelService.GetById(dividendoViewModel.PapelId));
+
             return View(dividendoViewModel);
         }
 
@@ -85,7 +89,10 @@ namespace MinhasFinancas.Web.Controllers
             {
                 return HttpNotFound();
             }
-            dividendoViewModel = await PopularPapeis(new DividendoViewModel());
+
+            dividendoViewModel = await PopularPapeis(dividendoViewModel);
+            
+            dividendoViewModel.Papel = _mapper.Map<PapelViewModel>(await _papelService.GetById(dividendoViewModel.PapelId));
 
             return View(dividendoViewModel);
         }
@@ -119,6 +126,9 @@ namespace MinhasFinancas.Web.Controllers
             {
                 return HttpNotFound();
             }
+
+            dividendoViewModel.Papel = _mapper.Map<PapelViewModel>(await _papelService.GetById(dividendoViewModel.PapelId));
+
             return View(dividendoViewModel);
         }
 

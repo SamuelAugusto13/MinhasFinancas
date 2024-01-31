@@ -6,6 +6,7 @@ using MinhasFinancas.Service.Transacao;
 using MinhasFinancas.Web.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
@@ -30,7 +31,7 @@ namespace MinhasFinancas.Web.Controllers
         // GET: Transacao
         public async Task<ActionResult> Index()
         {
-            return View(_mapper.Map<List<TransacaoViewModel>>(await _transacaoService.Get()));
+            return View(_mapper.Map<List<TransacaoViewModel>>(await _transacaoService.Get(includeProperties: "Papel")).OrderByDescending(f => f.Data));
         }
 
         // GET: Transacao/Details/5
@@ -41,6 +42,8 @@ namespace MinhasFinancas.Web.Controllers
             {
                 return HttpNotFound();
             }
+
+            transacaoViewModel.Papel = _mapper.Map<PapelViewModel>(await _papelService.GetById(transacaoViewModel.PapelId));
 
             return View(transacaoViewModel);
         }
@@ -79,7 +82,8 @@ namespace MinhasFinancas.Web.Controllers
                 return HttpNotFound();
             }
 
-            transacaoViewModel = await PopularPapeis(new TransacaoViewModel());
+            transacaoViewModel = await PopularPapeis(transacaoViewModel);
+            transacaoViewModel.Papel =  _mapper.Map<PapelViewModel>(await _papelService.GetById(transacaoViewModel.PapelId));
 
             return View(transacaoViewModel);
         }
@@ -111,6 +115,8 @@ namespace MinhasFinancas.Web.Controllers
             {
                 return HttpNotFound();
             }
+
+            transacaoViewModel.Papel = _mapper.Map<PapelViewModel>(await _papelService.GetById(transacaoViewModel.PapelId));
 
             return View(transacaoViewModel);
         }
