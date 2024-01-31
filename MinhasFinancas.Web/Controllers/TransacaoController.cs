@@ -65,7 +65,7 @@ namespace MinhasFinancas.Web.Controllers
             Transacao obj = _mapper.Map<Transacao>(transacaoViewModel);
             await _transacaoService.Add(obj);
 
-            //if (!OperacaoValida()) return View(transacaoViewModel);
+            if (!OperacaoValida()) return View(transacaoViewModel);
 
             return RedirectToAction("Index");
         }
@@ -98,7 +98,7 @@ namespace MinhasFinancas.Web.Controllers
             Transacao transacao = _mapper.Map<Transacao>(transacaoViewModel);
             await _transacaoService.Update(transacao);
 
-            //if (!OperacaoValida()) return View(await ObterFornecedorProdutosEndereco(id));
+            if (!OperacaoValida()) return View(_mapper.Map<TransacaoViewModel>(await _transacaoService.GetById(id)));
 
             return RedirectToAction("Index");
         }
@@ -126,7 +126,7 @@ namespace MinhasFinancas.Web.Controllers
 
             await _transacaoService.DeleteById(id);
 
-            //if (!OperacaoValida()) return View(fornecedor);
+            if (!OperacaoValida()) return View(transacaoViewModel);
 
             return RedirectToAction("Index");
         }

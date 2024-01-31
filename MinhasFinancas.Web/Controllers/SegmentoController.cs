@@ -63,7 +63,7 @@ namespace MinhasFinancas.Web.Controllers
             Segmento obj = _mapper.Map<Segmento>(segmentoViewModel);
             await _segmentoService.Add(obj);
 
-            //if (!OperacaoValida()) return View(segmentoViewModel);
+            if (!OperacaoValida()) return View(segmentoViewModel);
 
             return RedirectToAction("Index");
         }
@@ -94,7 +94,7 @@ namespace MinhasFinancas.Web.Controllers
             Segmento segmento = _mapper.Map<Segmento>(segmentoViewModel);
             await _segmentoService.Update(segmento);
 
-            //if (!OperacaoValida()) return View(await ObterFornecedorProdutosEndereco(id));
+            if (!OperacaoValida()) return View(_mapper.Map<PapelViewModel>(await _papelService.GetById(id)));
 
             return View(segmentoViewModel);
         }
@@ -123,7 +123,7 @@ namespace MinhasFinancas.Web.Controllers
 
             await _segmentoService.DeleteById(id);
 
-            //if (!OperacaoValida()) return View(fornecedor);
+            if (!OperacaoValida()) return View(segmentoViewModel);
 
             return RedirectToAction("Index");
         }

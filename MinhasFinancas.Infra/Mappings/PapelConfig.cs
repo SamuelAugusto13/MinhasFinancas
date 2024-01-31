@@ -27,7 +27,7 @@ namespace MinhasFinancas.Infra.Mappings
 
             HasMany(p => p.Segmento).WithMany(s => s.Papel);
 
-            ToTable("TbPapeis");
+            ToTable("TbPapel");
         }
     }
 }

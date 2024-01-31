@@ -59,7 +59,7 @@ namespace MinhasFinancas.Web.Controllers
             Papel obj = _mapper.Map<Papel>(papelViewModel);
             await _papelService.Add(obj);
 
-            //if (!OperacaoValida()) return View(DividendoViewModel);
+            if (!OperacaoValida()) return View(papelViewModel);
 
             return RedirectToAction("Index");
         }
@@ -90,7 +90,7 @@ namespace MinhasFinancas.Web.Controllers
             Papel papel = _mapper.Map<Papel>(papelViewModel);
             await _papelService.Update(papel);
 
-            //if (!OperacaoValida()) return View(await ObterFornecedorProdutosEndereco(id));
+            if (!OperacaoValida()) return View(_mapper.Map<PapelViewModel>(await _papelService.GetById(id)));
 
             return RedirectToAction("Index");
         }
@@ -118,7 +118,7 @@ namespace MinhasFinancas.Web.Controllers
 
             await _papelService.DeleteById(id);
 
-            //if (!OperacaoValida()) return View(fornecedor);
+            if (!OperacaoValida()) return View(papelViewModel);
 
             return RedirectToAction("Index");
         }
