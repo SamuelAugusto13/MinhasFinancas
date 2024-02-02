@@ -1,0 +1,33 @@
+﻿@{
+
+    ViewBag.Title = "Configuração";
+
+}
+
+<h2>Configurações</h2>
+
+
+@using (Html.BeginForm(
+  "Importar", "Configuracao", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+
+{
+
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+        <div class="col-12">
+            <span>Importe seu excel da B3 (investidor b3)</span>  <br />
+            <hr />
+            <input type="file" class="form-control" id="fileB3" name="fileB3" />
+            <br />
+            <br />
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Importar" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+
+}
+
