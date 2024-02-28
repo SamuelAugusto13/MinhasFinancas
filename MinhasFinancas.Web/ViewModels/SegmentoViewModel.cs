@@ -30,7 +30,7 @@ namespace MinhasFinancas.Web.ViewModels
         [DisplayName("Ativo")]
         public bool Ativo { get; set; }
 
-        public virtual IEnumerable<PapelViewModel> Papels { get; set; }
+        public virtual IEnumerable<PapelViewModel> Papel { get; set; }
 
         /// <summary>
         /// Propiedades fora classe

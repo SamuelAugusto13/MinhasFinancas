@@ -5,6 +5,7 @@ using MinhasFinancas.Service.Dividendo;
 using MinhasFinancas.Service.Papel;
 using MinhasFinancas.Service.Segmento;
 using MinhasFinancas.Service.Transacao;
+using MinhasFinancas.Service.Configuracao;
 using SimpleInjector;
 using SimpleInjector.Integration.Web;
 using SimpleInjector.Integration.Web.Mvc;
@@ -45,6 +46,7 @@ namespace MinhasFinancas.Web.App_Start
             container.Register<IDividendoService, DividendoService>(Lifestyle.Scoped);
             container.Register<ITransacaoService, TransacaoService>(Lifestyle.Scoped);
             container.Register<ISegmentoService, SegmentoService>(Lifestyle.Scoped);
+            container.Register<IConfiguracaoService, ConfiguracaoService>(Lifestyle.Scoped);
             container.Register<INotificador, Notificador>(Lifestyle.Scoped);
 
             DependencyInjectionConfigService.InitializeContainer(container);

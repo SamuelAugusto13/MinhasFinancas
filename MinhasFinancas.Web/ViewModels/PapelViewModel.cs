@@ -43,14 +43,31 @@ namespace MinhasFinancas.Web.ViewModels
         [DisplayName("Ativo")]
         public bool Ativo { get; set; }
 
-        public virtual IEnumerable<TransacaoViewModel> Transacaos { get; set; }
-        public virtual IEnumerable<DividendoViewModel> Dividendos { get; set; }
-        public virtual IEnumerable<SegmentoViewModel> Segmentos { get; set; }
+        public virtual IEnumerable<TransacaoViewModel> Transacao { get; set; }
+        public virtual IEnumerable<DividendoViewModel> Dividendo { get; set; }
+        public virtual IEnumerable<SegmentoViewModel> Segmento { get; set; }
 
         /// <summary>
         /// Propiedades fora classe
         /// </summary>
 
+        [DisplayName("Qtd")]
         public int QuantidadeTotal { get; set; }
+        [DisplayName("Total Inv.")]
+        public double TotalSaldo { get; set; }
+        [DisplayName("Total")]
+        public double TotalSaldoAtual { get; set; }
+        [DisplayName("$ Médio")]
+        public double PrecoMedio { get; set; }
+        [DisplayName("Div.")]
+        public double DividendosTotal { get; set; }
+        [DisplayName("% Div.")]
+        public double PercentDividendos { get; set; }
+        [DisplayName("Valorização")]
+        public double Valorizacao { get; set; }
+        [DisplayName("Ganho Unt")]
+        public double GanhoUnt { get; set; }
+        [DisplayName("Ganho T.")]
+        public double GanhoTotal { get; set; }
     }
 }
